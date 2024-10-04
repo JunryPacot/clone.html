@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix Clone</title>
+    <style>
+       * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Helvetica', sans-serif;
+    background-color: #141414;
+    color: white;
+    overflow-x: hidden;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: #000;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+header .logo h1 {
+    color: red;
+    font-size: 1.5rem;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+nav ul li {
+    cursor: pointer;
+}
+
+.search-bar {
+    margin-left: 20px;
+}
+
+.search-bar input {
+    padding: 5px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: none;
+}
+
+#banner {
+    background-size: cover;
+    height: 80vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+#banner:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.banner-content {
+    margin-left: 50px;
+    position: relative;
+    z-index: 2;
+}
+
+.banner-content h2 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+.banner-content p {
+    max-width: 500px;
+    margin-bottom: 20px;
+}
+
+.banner-content button {
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: none;
+    cursor: pointer;
+    background-color: red;
+    color: white;
+    border-radius: 5px;
+    font-size: 1.2rem;
+}
+
+#movie-lists {
+    padding: 50px 20px;
+    margin-top: -50px;
+}
+
+.movie-row {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+.movie-row img {
+    width: 200px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 10px;
+    transition: transform 0.3s;
+    cursor: pointer;
+}
+
+.movie-row img:hover {
+    transform: scale(1.1);
+}
+
+#video-modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+
+#video-modal iframe {
+    width: 100%;
+    height: 100%;
+}
+
+#close-modal {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 2rem;
+    color: white;
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+
+/* Media Queries for mobile devices */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+    }
+
+    nav ul {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .search-bar {
+        margin-top: 10px;
+        width: 100%;
+    }
+
+    .banner-content h2 {
+        font-size: 2rem;
+    }
+
+    .banner-content p {
+        font-size: 1rem;
+        max-width: 100%;
+    }
+
+    .banner-content button {
+        font-size: 1rem;
+    }
+
+    .movie-row img {
+        width: 150px;
+        height: 225px;
+    }
+}
+
+@media (max-width: 480px) {
+    header .logo h1 {
+        font-size: 1.2rem;
+    }
+
+    .banner-content h2 {
+        font-size: 1.8rem;
+    }
+
+    .banner-content p {
+        font-size: 0.9rem;
+    }
+
+    .banner-content button {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+
+    .movie-row img {
+        width: 120px;
+        height: 180px;
+    }
+}
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>MyFlix</h1>
+        </div>
+        <nav>
+            <ul>
+                <li>Home</li>
+                <li>TV Shows</li>
+                <li>Movies</li>
+                <li>New & Popular</li>
+                <li>My List</li>
+            </ul>
+        </nav>
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Search for movies...">
+        </div>
+    </header>
+
+    <section id="banner">
+        <div class="banner-content">
+            <h2 id="featured-title">Featured Movie Title</h2>
+            <p id="featured-description">Movie description will go here...</p>
+            <button id="play-button">Play</button>
+            <button id="info-button">More Info</button>
+        </div>
+    </section>
+
+    <section id="movie-lists">
+        <h2>Search Results</h2>
+        <div class="movie-row" id="search-results"></div>
+
+        <h2>Popular Movies</h2>
+        <div class="movie-row" id="popular-movies"></div>
+
+        <h2>Top Rated</h2>
+        <div class="movie-row" id="top-rated-movies"></div>
+    </section>
+
+    <div id="video-modal">
+        <button id="close-modal">×</button>
+        <iframe id="movie-trailer" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+
+    <script>
+        const API_KEY = 'YOUR_API_KEY'; // Replace with your TMDb API key
+        const BASE_URL = 'https://api.themoviedb.org/3';
+        const IMG_URL = 'https://image.tmdb.org/t/p/w500';
+
+        async function fetchMovies(url) {
+            const response = await fetch(url);
+            const data = await response.json();
+            return data.results;
+        }
+
+        async function searchMovies(query) {
+            const movies = await fetchMovies(`${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
+            const searchResultsContainer = document.getElementById('search-results');
+            searchResultsContainer.innerHTML = movies.map(movie => `
+                <img src="${IMG_URL + movie.poster_path}" alt="${movie.title}" data-id="${movie.id}" title="${movie.title}">
+            `).join('');
+            setupMovieClickHandler('search-results');
+        }
+
+        async function displayPopularMovies() {
+            const movies = await fetchMovies(`${BASE_URL}/movie/popular?api_key=${API_KEY}`);
+            const popularMoviesContainer = document.getElementById('popular-movies');
+            popularMoviesContainer.innerHTML = movies.map(movie => `
+                <img src="${IMG_URL + movie.poster_path}" alt="${movie.title}" data-id="${movie.id}" title="${movie.title}">
+            `).join('');
+            setupMovieClickHandler('popular-movies');
+        }
+
+        async function displayTopRatedMovies() {
+            const movies = await fetchMovies(`${BASE_URL}/movie/top_rated?api_key=${API_KEY}`);
+            const topRatedMoviesContainer = document.getElementById('top-rated-movies');
+            topRatedMoviesContainer.innerHTML = movies.map(movie => `
+                <img src="${IMG_URL + movie.poster_path}" alt="${movie.title}" data-id="${movie.id}" title="${movie.title}">
+            `).join('');
+            setupMovieClickHandler('top-rated-movies');
+        }
+
+        async function displayFeaturedMovie() {
+            const movie = await fetchMovies(`${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=en-US&page=1`);
+            const featuredMovie = movie[0]; // Get the first now playing movie
+            document.getElementById('featured-title').textContent = featuredMovie.title;
+            document.getElementById('featured-description').textContent = featuredMovie.overview;
+            document.getElementById('banner').style.backgroundImage = `url(${IMG_URL + featuredMovie.backdrop_path})`;
+        }
+
+        async function fetchMovieTrailer(movieId) {
+            const response = await fetch(`${BASE_URL}/movie/${movieId}/videos?api_key=${API_KEY}`);
+            const data = await response.json();
+            return data.results.find(video => video.site === 'YouTube' && video.type === 'Trailer');
+        }
+
+        function setupMovieClickHandler(containerId) {
+            const movieContainer = document.getElementById(containerId);
+            movieContainer.addEventListener('click', async (event) => {
+                const movieId = event.target.getAttribute('data-id');
+                if (movieId) {
+                    const trailer = await fetchMovieTrailer(movieId);
+                    if (trailer) {
+                        const trailerUrl = `https://www.youtube.com/embed/${trailer.key}?autoplay=1`;
+                        openVideoModal(trailerUrl);
+                    }
+                }
+            });
+        }
+
+        function openVideoModal(trailerUrl) {
+            const modal = document.getElementById('video-modal');
+            const trailerFrame = document.getElementById('movie-trailer');
+            trailerFrame.src = trailerUrl;
+            modal.style.display = 'flex';
+        }
+
+        function closeVideoModal() {
+            const modal = document.getElementById('video-modal');
+            const trailerFrame = document.getElementById('movie-trailer');
+            modal.style.display = 'none';
+            trailerFrame.src = ''; // Stop the video
+        }
+
+        function setupVideoModal() {
+            const closeModal = document.getElementById('close-modal');
+            closeModal.addEventListener('click', closeVideoModal);
+        }
+
+        // Setup event listener for the search bar
+        document.getElementById('search-input').addEventListener('keyup', (event) => {
+            const query = event.target.value.trim();
+            if (query.length > 2) { // Search only if the query is longer than 2 characters
+                searchMovies(query);
+            } else {
+                document.getElementById('search-results').innerHTML = ''; // Clear search results if input is too short
+            }
+        });
+
+        // Scroll event to trigger loading popular movies when near the top
+        window.addEventListener('scroll', () => {
+            if (window.scrollY < 100) { // When user scrolls near the top
+                displayPopularMovies();
+            }
+        });
+
+        function init() {
+            displayTopRatedMovies();
+            displayFeaturedMovie();
+            setupVideoModal();
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
